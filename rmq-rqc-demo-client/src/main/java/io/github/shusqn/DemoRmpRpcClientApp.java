@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Import;
 
 import io.github.shusqn.rocketmq.MqRpcPackageScanConfiguration;
 import io.github.shusqn.rocketmq.rpc.RmqRpcService;
+import io.github.shusqn.rocketmq.rpc.Rmq_data;
 
 /**
  * DemoRmpRpcServerApp.java
@@ -22,9 +23,16 @@ public class DemoRmpRpcClientApp {
 		SpringApplicationBuilder springApplicationBuilder = new SpringApplicationBuilder(DemoRmpRpcClientApp.class);
 		ApplicationContext applicationContext =  springApplicationBuilder.web(WebApplicationType.NONE).run(args);
 		
-		//同步
+		
 		RmqRpcService.registerClient("192.168.3.220:9876", 10);
+		//同步
+		System.out.println(applicationContext.getBean(DemoClient.class).iHelloService.hi("shusqn")); 
+		
 		//异步
-		//RmqRpcAsynService.registerClient("192.168.3.220:9876", 10);
+		RmqRpcService.asynSendAndReceiveRpcMsg(DemoRmpRpcClientApp::backFunc, "ITestAsynService/hi", "demo-server", "shusqn asyn");
+	}
+	
+	public static void backFunc(Rmq_data data) {
+		System.out.println("backFunc:" + data.getRs());
 	}
 }
