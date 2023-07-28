@@ -1,0 +1,88 @@
+version: "3"
+services:
+  rmqnamesrv:
+    image: apache/rocketmq:5.1.0
+    container_name: rmqnamesrv
+    privileged: true
+    network_mode: "bridge"
+    ports: 
+     - "9876:9876"
+    environment:
+      #TZ: Asia/Shanghai
+      TZ: UTC
+      LANG: C.UTF-8
+      JAVA_OPT_EXT: "-server -Xms512m -Xmx512m -Xmn192m"
+    volumes: 
+      - "/home/rmq5/logs:/home/rocketmq/logs"  #映射本地目录logs权限一定要设置为 777 权限，否则启动不成功
+      - "/home/rmq5/store:/home/rocketmq/store"  #映射本地目录store权限一定要设置为 777 权限，否则启动不成功
+    command: sh mqnamesrv
+    restart: always
+    logging: 
+      driver: "json-file"
+      options:
+        max-size: "200M"
+        
+  rmqbroker:
+    image: apache/rocketmq:5.1.0
+    container_name: rmqbroker
+    privileged: true
+    network_mode: "bridge"
+    ports: 
+     - "10911:10911"
+     #- "10912:10912"
+     #- "10909:10909"
+    environment:
+      TZ: UTC
+      LANG: C.UTF-8
+      JAVA_OPT_EXT: "-server -Xms512m -Xmx512m -XX:MaxDirectMemorySize=1g "
+    volumes: 
+      - "/home/rmq5/logs:/home/rocketmq/logs" #映射本地目录logs权限一定要设置为 777 权限，否则启动不成功 -XX:MaxDirectMemorySize=2048m
+      - "/home/rmq5/store:/home/rocketmq/store" #映射本地目录store权限一定要设置为 777 权限，否则启动不成功
+      - "/home/rmq5/conf/broker.conf:/home/rocketmq/rocketmq-5.1.0/conf/broker.conf" # sh mqadmin updatetopic -n 192.168.3.114:9876 -t TestTopic -c DefaultCluster 命令添加topic --enable-proxy
+    command: sh mqbroker -n 192.168.1.11:9876 -c /home/rocketmq/rocketmq-5.1.0/conf/broker.conf
+    depends_on: 
+      - rmqnamesrv
+    restart: always
+    logging: 
+      driver: "json-file"
+      options:
+        max-size: "200M"
+
+  rmqproxy:
+    image: apache/rocketmq:5.1.0
+    container_name: rmqproxy
+    privileged: true
+    network_mode: "bridge"
+    ports: 
+     - "8081:8081"
+    environment:
+      TZ: UTC
+      LANG: C.UTF-8
+      JAVA_OPT_EXT: "-server -Xms512m -Xmx512m -XX:MaxDirectMemorySize=1g "
+    volumes: 
+      - "/home/rmq5/logs:/home/rocketmq/logs" #映射本地目录logs权限一定要设置为 777 权限，否则启动不成功 -XX:MaxDirectMemorySize=2048m
+    command: sh mqproxy -n 192.168.1.11:9876
+    depends_on: 
+      - rmqnamesrv
+    restart: always
+    logging: 
+      driver: "json-file"
+      options:
+        max-size: "200M"
+        
+  rmqdashboard:
+    image: apacherocketmq/rocketmq-dashboard:latest
+    container_name: rmqdashboard
+    privileged: true
+    network_mode: "bridge"
+    ports: 
+     - "8080:8080"
+    environment: 
+      JAVA_OPTS: "-Drocketmq.namesrv.addr=192.168.1.11:9876 -Dcom.rocketmq.sendMessageWithVIPChannel=false"
+      TZ: UTC
+    depends_on: 
+      - rmqnamesrv
+    logging: 
+      driver: "json-file"
+      options:
+        max-size: "200M"
