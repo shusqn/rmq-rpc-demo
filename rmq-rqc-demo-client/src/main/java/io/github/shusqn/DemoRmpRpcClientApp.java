@@ -27,7 +27,6 @@ public class DemoRmpRpcClientApp {
 		RmqRpcService.registerClient("192.168.3.220:9876", 10);
 		//同步
 		System.out.println(applicationContext.getBean(DemoClient.class).iHelloService.hi("shusqn")); 
-		
 		//异步
 		RmqRpcService.asynSendAndReceiveRpcMsg(DemoRmpRpcClientApp::backFunc, "ITestAsynService/hi", "demo-server", "shusqn asyn");
 	}
