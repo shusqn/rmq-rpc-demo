@@ -6,11 +6,11 @@ import io.github.shusqn.service.IHelloService;
 import io.github.shusqn.service.ITestAsynService;
 
 @Service
-public class DemoServer implements IHelloService, ITestAsynService{
+public class DemoServerService implements IHelloService, ITestAsynService{
 	
 	@Override
 	public String hi(String name) {
-		System.out.println("DemoServer:" + name);
+		System.out.println("DemoServerService:" + name);
 		return "hello " + name;
 	}
 }

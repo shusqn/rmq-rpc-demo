@@ -24,9 +24,9 @@ public class DemoRmpRpcClientApp {
 		ApplicationContext applicationContext =  springApplicationBuilder.web(WebApplicationType.NONE).run(args);
 		
 		
-		RmqRpcService.registerClient("192.168.3.220:9876", 10);
+		RmqRpcService.registerClient("192.168.3.220:9876", 11);
 		//同步
-		System.out.println(applicationContext.getBean(DemoClient.class).iHelloService.hi("shusqn")); 
+		System.out.println(applicationContext.getBean(DemoClientService.class).iHelloService.hi("shusqn")); 
 		//异步
 		RmqRpcService.asynSendAndReceiveRpcMsg(DemoRmpRpcClientApp::backFunc, "ITestAsynService/hi", "demo-server", "shusqn asyn");
 	}

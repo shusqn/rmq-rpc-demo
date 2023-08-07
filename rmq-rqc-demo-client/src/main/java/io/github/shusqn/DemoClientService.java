@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import io.github.shusqn.service.IHelloService;
 
 @Service
-public class DemoClient {
+public class DemoClientService {
 	@Autowired
     IHelloService iHelloService;
 }
